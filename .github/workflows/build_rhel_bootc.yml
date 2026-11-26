@@ -101,7 +101,7 @@ jobs:
           containerfiles: ${{ env.CONTAINERFILE }}
           extra-args: |
             --secret=id=secureboot_key,env=SECUREBOOT_KEY
-            --secret=id=secureboot_crt,env=SECUREBOOT_CERT
+            --secret=id=secureboot_cert,env=SECUREBOOT_CERT
             --cap-add=all
             --security-opt=label=type:container_runtime_t
             --device /dev/fuse
