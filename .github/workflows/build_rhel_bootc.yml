@@ -92,10 +92,20 @@ jobs:
       - name: Use buildah bud to create the image
         id: build-image
         uses: redhat-actions/buildah-build@v3
+        env:
+          SECUREBOOT_KEY: ${{ secrets.SECUREBOOT_KEY }}
+          SECUREBOOT_CERT: ${{ secrets.SECUREBOOT_CERT }}
         with:
           image: ${{ env.DEST_IMAGE }}
           tags: ${{ env.TAGLIST }}
           containerfiles: ${{ env.CONTAINERFILE }}
+          extra-args: |
+            --secret=id=secureboot_key,env=SECUREBOOT_KEY
+            --secret=id=secureboot_crt,env=SECUREBOOT_CERT
+            --cap-add=all
+            --security-opt=label=type:container_runtime_t
+            --device /dev/fuse
+
 
       - name: Log in to the GitHub Container registry
         uses: redhat-actions/podman-login@v2
