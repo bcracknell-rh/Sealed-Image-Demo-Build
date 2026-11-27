@@ -75,6 +75,14 @@ EOF
 
 RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
 
+A likely workaround is to make those source-tree files writable for the compose step, then restore the intended final mode—but I would validate that deliberately rather than blindly changing it
+RUN chmod 0600 /etc/gshadow /etc/shadow && \
+    /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
+    ${extra_packages:+--install $extra_packages} /target-rootfs
+
+RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+
+
 RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp \
     /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
     ${extra_packages:+--install $extra_packages} /target-rootfs
