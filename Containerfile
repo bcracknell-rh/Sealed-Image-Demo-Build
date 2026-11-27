@@ -99,8 +99,8 @@ RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp <<'EOF'
 set -euo pipefail
 
 # Retain your current chmod experiment.
-chmod 0600 /etc/gshadow /etc/shadow
-trap 'chmod 0000 /etc/gshadow /etc/shadow' EXIT
+#chmod 0600 /etc/gshadow /etc/shadow
+#trap 'chmod 0000 /etc/gshadow /etc/shadow' EXIT
 
 # An explicit cache keeps working files outside the temporary repository.
 mkdir -p /var/tmp/bootc-debug-cache
@@ -131,7 +131,7 @@ EOF
 
 # End
 
-RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+#RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
 
 
 #RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp \
