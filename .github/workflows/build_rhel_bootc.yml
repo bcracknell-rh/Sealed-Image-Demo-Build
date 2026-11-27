@@ -104,16 +104,7 @@ jobs:
             --secret=id=secureboot_cert,env=SECUREBOOT_CERT
             --cap-add=all
             --security-opt=label=type:container_runtime_t
-            --security-opt=seccomp=unconfined
-            --security-opt=apparmor=unconfined
             --device /dev/fuse
-      - name: Show build failure diagnostics
-        if: failure()
-        run: |
-          uname -r
-          buildah --version
-          rpm -q fuse-overlayfs
-        dmesg | grep -Ei 'apparmor|avc:|seccomp|denied' | tail -80 || true
 
       - name: Log in to the GitHub Container registry
         uses: redhat-actions/podman-login@v2
