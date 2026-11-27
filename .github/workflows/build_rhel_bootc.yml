@@ -55,18 +55,29 @@ jobs:
       # The job rootfs is already overlayfs; Podman's default overlay driver cannot nest
       # without a FUSE mount helper. podman-login, buildah-build, and push-to-registry
       # all need working container storage before registry login or image build.
-      - name: Configure Podman storage for nested GitHub Actions job container
+#      - name: Configure Podman storage for nested GitHub Actions job container
+#        run: |
+#          dnf -y install fuse-overlayfs
+#          mkdir -p /etc/containers
+#          cat > /etc/containers/storage.conf <<'EOF'
+#          [storage]
+#          driver = "overlay"
+#          graphroot = "/var/lib/containers/storage"
+#          runroot = "/run/containers/storage"
+#
+#          [storage.options.overlay]
+#          mount_program = "/usr/bin/fuse-overlayfs"
+#          EOF
+#          podman info -f '{{.Store.GraphDriverName}}'
+      # Test eliminating fuse-overlayfs via Native Kernal overlayfs
+      - name: Configure Podman storage with native kernel overlayfs
         run: |
-          dnf -y install fuse-overlayfs
-          mkdir -p /etc/containers
+          mkdir -p /__w/containers-storage /etc/containers
           cat > /etc/containers/storage.conf <<'EOF'
           [storage]
           driver = "overlay"
-          graphroot = "/var/lib/containers/storage"
+          graphroot = "/__w/containers-storage"
           runroot = "/run/containers/storage"
-
-          [storage.options.overlay]
-          mount_program = "/usr/bin/fuse-overlayfs"
           EOF
           podman info -f '{{.Store.GraphDriverName}}'
 
