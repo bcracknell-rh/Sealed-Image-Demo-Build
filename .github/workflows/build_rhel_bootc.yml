@@ -107,6 +107,7 @@ jobs:
             --security-opt=seccomp=unconfined
             --security-opt=apparmor=unconfined
             --device /dev/fuse
+            --isolation=chroot
 
       - name: Log in to the GitHub Container registry
         uses: redhat-actions/podman-login@v2
