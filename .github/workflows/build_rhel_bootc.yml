@@ -104,6 +104,8 @@ jobs:
             --secret=id=secureboot_cert,env=SECUREBOOT_CERT
             --cap-add=all
             --security-opt=label=type:container_runtime_t
+            --security-opt=seccomp=unconfined
+            --security-opt=apparmor=unconfined
             --device /dev/fuse
 
       - name: Log in to the GitHub Container registry
