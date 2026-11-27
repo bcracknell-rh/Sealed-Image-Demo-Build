@@ -72,6 +72,9 @@ blocks = re.findall(
 for i, block in enumerate(blocks):
     (gpgdir / f"RPM-GPG-KEY-redhat-release-{i}").write_text(block + "\n")
 EOF
+
+RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+
 RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp \
     /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
     ${extra_packages:+--install $extra_packages} /target-rootfs
