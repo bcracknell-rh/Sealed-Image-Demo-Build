@@ -41,7 +41,7 @@
 ARG base=registry.redhat.io/rhel10/rhel-bootc:10.3
 # Extra packages to install into the sealed rootfs (space-separated).
 # Example: --build-arg extra_packages="cloud-init" for cloud images.
-ARG extra_packages="vim-enhanced"
+ARG extra_packages=""
 # Kernel console argument(s) baked into the UKI.
 # Override for different platforms, e.g. --build-arg console_kargs="console=ttyS0,115200"
 ARG console_kargs="console=hvc0,115200"
