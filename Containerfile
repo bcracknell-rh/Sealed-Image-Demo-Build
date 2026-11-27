@@ -79,19 +79,57 @@ RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
 #    /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
 #    ${extra_packages:+--install $extra_packages} /target-rootfs
 
+# Workaround to test build-rootfs permissions issue
+#RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp <<'EOF'
+#set -euo pipefail
+#chmod 0600 /etc/gshadow /etc/shadow
+#
+#stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+#
+#/usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
+#  ${extra_packages:+--install $extra_packages} /target-rootfs
+#
+#stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+#
+#chmod 0000 /etc/gshadow /etc/shadow
+#EOF
+
+# Codex potential workaround
 RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp <<'EOF'
 set -euo pipefail
+
+# Retain your current chmod experiment.
 chmod 0600 /etc/gshadow /etc/shadow
+trap 'chmod 0000 /etc/gshadow /etc/shadow' EXIT
 
-stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+# An explicit cache keeps working files outside the temporary repository.
+mkdir -p /var/tmp/bootc-debug-cache
 
-/usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
-  ${extra_packages:+--install $extra_packages} /target-rootfs
+build_status=0
+RPMOSTREE_PRESERVE_TMPDIR=on-fail \
+  /usr/libexec/bootc-base-imagectl build-rootfs \
+    --manifest=standard \
+    --cachedir=/var/tmp/bootc-debug-cache \
+    ${extra_packages:+--install $extra_packages} \
+    /target-rootfs \
+  || build_status=$?
 
-stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
+if [ "$build_status" -ne 0 ]; then
+    echo '=== Account-file metadata in preserved compose trees ==='
+    find /var/tmp/bootc-debug-cache \
+      \( -name shadow -o -name gshadow \
+         -o -name passwd -o -name group \) \
+      -exec stat -c '%a %u:%g %F %n' {} \; \
+      || true
 
-chmod 0000 /etc/gshadow /etc/shadow
+    echo '=== Build tool versions ==='
+    rpm -q rpm-ostree ostree shadow-utils bubblewrap || true
+fi
+
+exit "$build_status"
 EOF
+
+# End
 
 RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
 
