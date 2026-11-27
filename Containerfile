@@ -83,9 +83,9 @@ RUN chmod 0600 /etc/gshadow /etc/shadow && \
 RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
 
 
-RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp \
-    /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
-    ${extra_packages:+--install $extra_packages} /target-rootfs
+#RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp \
+#    /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
+#    ${extra_packages:+--install $extra_packages} /target-rootfs
 
 # Multi packages fix by GPT
 #RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp <<'EORUN'
