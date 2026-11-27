@@ -73,34 +73,11 @@ for i, block in enumerate(blocks):
     (gpgdir / f"RPM-GPG-KEY-redhat-release-{i}").write_text(block + "\n")
 EOF
 
-RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
-# A likely workaround is to make those source-tree files writable for the compose step, then restore the intended final mode—but I would validate that deliberately rather than blindly changing it
-#RUN chmod 0600 /etc/gshadow /etc/shadow && \
-#    /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
-#    ${extra_packages:+--install $extra_packages} /target-rootfs
-
-# Workaround to test build-rootfs permissions issue
-#RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp <<'EOF'
-#set -euo pipefail
-#chmod 0600 /etc/gshadow /etc/shadow
-#
-#stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
-#
-#/usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
-#  ${extra_packages:+--install $extra_packages} /target-rootfs
-#
-#stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
-#
-#chmod 0000 /etc/gshadow /etc/shadow
-#EOF
-
-# Codex potential workaround
+# Use an rpm-ostree cache directory to work around package installation permission errors. 
+# If build gails, preserve the working files and print diagnostic information to Github actions log
 RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp <<'EOF'
 set -euo pipefail
 
-# Retain your current chmod experiment.
-#chmod 0600 /etc/gshadow /etc/shadow
-#trap 'chmod 0000 /etc/gshadow /etc/shadow' EXIT
 
 # An explicit cache keeps working files outside the temporary repository.
 mkdir -p /var/tmp/bootc-debug-cache
@@ -131,9 +108,7 @@ EOF
 
 # End
 
-#RUN stat -c '%a %U:%G %n' /etc/gshadow /etc/shadow
-
-
+# Original Containerfile contents
 #RUN --mount=type=tmpfs,target=/run --mount=type=tmpfs,target=/tmp \
 #    /usr/libexec/bootc-base-imagectl build-rootfs --manifest=standard \
 #    ${extra_packages:+--install $extra_packages} /target-rootfs
