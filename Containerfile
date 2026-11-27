@@ -103,16 +103,17 @@ set -euo pipefail
 #trap 'chmod 0000 /etc/gshadow /etc/shadow' EXIT
 
 # An explicit cache keeps working files outside the temporary repository.
-mkdir -p /var/tmp/bootc-debug-cache
+#mkdir -p /var/tmp/bootc-debug-cache
 
 build_status=0
 RPMOSTREE_PRESERVE_TMPDIR=on-fail \
   /usr/libexec/bootc-base-imagectl build-rootfs \
     --manifest=standard \
-    --cachedir=/var/tmp/bootc-debug-cache \
     ${extra_packages:+--install $extra_packages} \
     /target-rootfs \
   || build_status=$?
+
+#    --cachedir=/var/tmp/bootc-debug-cache \
 
 if [ "$build_status" -ne 0 ]; then
     echo '=== Account-file metadata in preserved compose trees ==='
